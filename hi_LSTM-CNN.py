@@ -34,10 +34,10 @@ def main():
     parser.add_argument('--fine_tune', action='store_true', help='Fine tune word embeddings')
     parser.add_argument('--embedding', type=str, default='word2vec', help='Word embedding type, word2vec, senna or glove')
     parser.add_argument('--embedding_dict', type=str, default=None, help='Pretrained embedding path')
-    parser.add_argument('--embedding_dim', type=int, default=64, help='Only useful when embedding is randomly initialised')
+    parser.add_argument('--embedding_dim', type=int, default=50, help='Only useful when embedding is randomly initialised')
     parser.add_argument('--char_embedd_dim', type=int, default=30, help='char embedding dimension if using char embedding')
 
-    parser.add_argument('--use_char', action='store_true', help='Whether use char embedding or not')
+    parser.add_argument('--use_char', action='store_false', help='Whether use char embedding or not')
     parser.add_argument('--num_epochs', type=int, default=20, help='number of epochs for training')
     parser.add_argument('--batch_size', type=int, default=10, help='Number of texts in each batch')
     parser.add_argument("-v", "--vocab-size", dest="vocab_size", type=int, metavar='<int>', default=4000, help="Vocab size (default=4000)")
@@ -50,19 +50,19 @@ def main():
     parser.add_argument('--lstm_units', type=int, default=100, help='Num of hidden units in recurrent layer')
 
     # parser.add_argument('--project_hiddensize', type=int, default=100, help='num of units in projection layer')
-    parser.add_argument('--optimizer', choices=['sgd', 'momentum', 'nesterov', 'adagrad', 'rmsprop'], help='updating algorithm', default='sgd')
+    parser.add_argument('--optimizer', choices=['sgd', 'momentum', 'nesterov', 'adagrad', 'rmsprop'], help='updating algorithm', default='rmsprop')
     parser.add_argument('--learning_rate', type=float, default=0.1, help='Initial learning rate')
     parser.add_argument('--dropout', type=float, default=0.5, help='Dropout rate for layers')
-    parser.add_argument('--oov', choices=['random', 'embedding'], help="Embedding for oov word", required=True)
+    parser.add_argument('--oov', choices=['random', 'embedding'], default='embedding', help="Embedding for oov word")
     parser.add_argument('--l2_value', type=float, help='l2 regularizer value')
-    parser.add_argument('--checkpoint_path', type=str, help='checkpoint directory')
+    parser.add_argument('--checkpoint_path', type=str, help='checkpoint directory', default='checkpoints')
 
-    parser.add_argument('--train')  # "data/word-level/*.train"
+    parser.add_argument('--train')  # "data/word-level/*.trpreprocess_asap.pyain"
     parser.add_argument('--dev')
     parser.add_argument('--test')
     parser.add_argument('--prompt_id', type=int, default=1, help='prompt id of essay set')
     parser.add_argument('--init_bias', action='store_true', help='init the last layer bias with average score of training data')
-    parser.add_argument('--mode', type=str, choices=['mot', 'att', 'merged'], default='mot', \
+    parser.add_argument('--mode', type=str, choices=['mot', 'att', 'merged'], default='att', \
                         help='Mean-over-Time pooling or attention-pooling, or two pooling merged')
 
     args = parser.parse_args()

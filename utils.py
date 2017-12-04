@@ -7,8 +7,9 @@ import gzip
 import logging
 import sys
 from gensim.models.word2vec import Word2Vec
-import theano
+# import theano
 import numpy as np
+import tensorflow as tf
 # import matplotlib.pyplot as plt
 
 
@@ -29,17 +30,17 @@ def padding_sentence_sequences(index_sequences, scores, max_sentnum, max_sentlen
 
     X = np.empty([len(index_sequences), max_sentnum, max_sentlen], dtype=np.int32)
     Y = np.empty([len(index_sequences), 1], dtype=np.float32)
-    mask = np.zeros([len(index_sequences), max_sentnum, max_sentlen], dtype=theano.config.floatX)
+    mask = np.zeros([len(index_sequences), max_sentnum, max_sentlen], dtype=tf.float32)
 
     for i in range(len(index_sequences)):
         sequence_ids = index_sequences[i]
         num = len(sequence_ids)
 
-        for j in xrange(num):
+        for j in range(num):
             word_ids = sequence_ids[j]
             length = len(word_ids)
             # X_len[i] = length
-            for k in xrange(length):
+            for k in range(length):
                 wid = word_ids[k]
                 # print wid
                 X[i, j, k] = wid
@@ -58,7 +59,7 @@ def padding_sequences(word_indices, char_indices, scores, max_sentnum, max_sentl
     # support char features
     X = np.empty([len(word_indices), max_sentnum, max_sentlen], dtype=np.int32)
     Y = np.empty([len(word_indices), 1], dtype=np.float32)
-    mask = np.zeros([len(word_indices), max_sentnum, max_sentlen], dtype=theano.config.floatX)
+    mask = np.zeros([len(word_indices), max_sentnum, max_sentlen], dtype=tf.float32)
 
     char_X = np.empty([len(char_indices), max_sentnum, max_sentlen, maxcharlen], dtype=np.int32)
 
@@ -66,11 +67,11 @@ def padding_sequences(word_indices, char_indices, scores, max_sentnum, max_sentl
         sequence_ids = word_indices[i]
         num = len(sequence_ids)
 
-        for j in xrange(num):
+        for j in range(num):
             word_ids = sequence_ids[j]
             length = len(word_ids)
             # X_len[i] = length
-            for k in xrange(length):
+            for k in range(length):
                 wid = word_ids[k]
                 # print wid
                 X[i, j, k] = wid
@@ -83,16 +84,16 @@ def padding_sequences(word_indices, char_indices, scores, max_sentnum, max_sentl
         X[i, num:, :] = 0
         Y[i] = scores[i]
 
-    for i in xrange(len(char_indices)):
+    for i in range(len(char_indices)):
         sequence_ids = char_indices[i]
         num = len(sequence_ids)
-        for j in xrange(num):
+        for j in range(num):
             word_ids = sequence_ids[j]
             length = len(word_ids)
-            for k in xrange(length):
+            for k in range(length):
                 wid = word_ids[k]
                 charlen = len(wid)
-                for l in xrange(charlen):
+                for l in range(charlen):
                     cid = wid[l]
                     char_X[i, j, k, l] = cid
                 char_X[i, j, k, charlen:] = 0
@@ -131,7 +132,7 @@ def load_word_embedding_dict(embedding, embedding_path, word_alphabet, logger, e
                     embedd_dim = len(tokens) - 1
                 else:
                     assert (embedd_dim + 1 == len(tokens))
-                embedd = np.empty([1, embedd_dim], dtype=theano.config.floatX)
+                embedd = np.empty([1, embedd_dim], dtype=tf.float32)
                 embedd[:] = tokens[1:]
                 embedd_dict[tokens[0]] = embedd
         return embedd_dict, embedd_dim, True
@@ -151,7 +152,7 @@ def load_word_embedding_dict(embedding, embedding_path, word_alphabet, logger, e
                     embedd_dim = len(tokens) - 1
                 else:
                     assert (embedd_dim + 1 == len(tokens))
-                embedd = np.empty([1, embedd_dim], dtype=theano.config.floatX)
+                embedd = np.empty([1, embedd_dim], dtype=tf.float32)
                 embedd[:] = tokens[1:]
                 embedd_dict[tokens[0]] = embedd
         return embedd_dict, embedd_dim, True
@@ -171,7 +172,7 @@ def load_word_embedding_dict(embedding, embedding_path, word_alphabet, logger, e
 
 def build_embedd_table(word_alphabet, embedd_dict, embedd_dim, logger, caseless):
     scale = np.sqrt(3.0 / embedd_dim)
-    embedd_table = np.empty([len(word_alphabet), embedd_dim], dtype=theano.config.floatX)
+    embedd_table = np.empty([len(word_alphabet), embedd_dim], dtype=tf.float32)
     embedd_table[0, :] = np.zeros([1, embedd_dim])
     oov_num = 0
     for word, index in word_alphabet.iteritems():
@@ -202,7 +203,7 @@ def rescale_tointscore(scaled_scores, set_ids):
     assert scaled_scores.shape[0] == len(set_ids)
     int_scores = np.zeros((scaled_scores.shape[0], 1))
     for k, i in enumerate(set_ids):
-        assert i in xrange(1, 9)
+        assert i in range(1, 9)
         # TODO
         if i == 1:
             minscore = 2
@@ -223,7 +224,7 @@ def rescale_tointscore(scaled_scores, set_ids):
             minscore = 0
             maxscore = 60
         else:
-            print "Set ID error"
+            print("Set ID error")
         # minscore = 0
         # maxscore = 60
 
@@ -256,7 +257,7 @@ def domain_specific_rescale(y_true, y_pred, set_ids):
     y8_true, y8_pred = [], []
 
     for k, i in enumerate(set_ids):
-        assert i in xrange(1, 9)
+        assert i in range(1, 9)
         if i == 1:
             minscore = 2
             maxscore = 12
@@ -302,7 +303,7 @@ def domain_specific_rescale(y_true, y_pred, set_ids):
             y8_pred.append(y_pred[k]*(maxscore-minscore) + minscore)
 
         else:
-            print "Set ID error"
+            print("Set ID error")
     prompts_truescores = [np.around(y1_true), np.around(y2_true), np.around(y3_true), np.around(y4_true), \
                             np.around(y5_true), np.around(y6_true), np.around(y7_true), np.around(y8_true)]
     prompts_predscores = [np.around(y1_pred), np.around(y2_pred), np.around(y3_pred), np.around(y4_pred), \
@@ -317,7 +318,7 @@ def domain_specific_rescale(y_true, y_pred, set_ids):
 #     :param test_stas: list of test metrics at each epoch
 #     '''
 #     num_epochs = len(train_stats)
-#     x = xrange(1, num_epochs+1)
+#     x = range(1, num_epochs+1)
 
 #     plt.plot(x, train_stats)
 #     plt.plot(x, dev_stats)
