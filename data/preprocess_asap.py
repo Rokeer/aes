@@ -25,8 +25,8 @@ def create_dataset(lines, output_fname):
     f_write = open(output_fname, 'w')
     f_write.write(dataset['header'])
     for line in lines:
-        # f_write.write(line.decode('cp1252', 'replace').encode('utf-8'))
-        f_write.write(line)
+        f_write.write(line.decode('cp1252', 'replace').encode('utf-8'))
+        # f_write.write(line)
 
 def collect_dataset(input_file):
     dataset = dict()

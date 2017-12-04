@@ -38,7 +38,7 @@ def main():
     parser.add_argument('--char_embedd_dim', type=int, default=30, help='char embedding dimension if using char embedding')
 
     parser.add_argument('--use_char', action='store_false', help='Whether use char embedding or not')
-    parser.add_argument('--num_epochs', type=int, default=20, help='number of epochs for training')
+    parser.add_argument('--num_epochs', type=int, default=50, help='number of epochs for training')
     parser.add_argument('--batch_size', type=int, default=10, help='Number of texts in each batch')
     parser.add_argument("-v", "--vocab-size", dest="vocab_size", type=int, metavar='<int>', default=4000, help="Vocab size (default=4000)")
 
@@ -51,16 +51,16 @@ def main():
 
     # parser.add_argument('--project_hiddensize', type=int, default=100, help='num of units in projection layer')
     parser.add_argument('--optimizer', choices=['sgd', 'momentum', 'nesterov', 'adagrad', 'rmsprop'], help='updating algorithm', default='rmsprop')
-    parser.add_argument('--learning_rate', type=float, default=0.1, help='Initial learning rate')
+    parser.add_argument('--learning_rate', type=float, default=0.001, help='Initial learning rate')
     parser.add_argument('--dropout', type=float, default=0.5, help='Dropout rate for layers')
     parser.add_argument('--oov', choices=['random', 'embedding'], default='embedding', help="Embedding for oov word")
     parser.add_argument('--l2_value', type=float, help='l2 regularizer value')
     parser.add_argument('--checkpoint_path', type=str, help='checkpoint directory', default='checkpoints')
 
-    parser.add_argument('--train')  # "data/word-level/*.trpreprocess_asap.pyain"
-    parser.add_argument('--dev')
-    parser.add_argument('--test')
-    parser.add_argument('--prompt_id', type=int, default=1, help='prompt id of essay set')
+    parser.add_argument('--train', type=str, help='train file', default='data/fold_0/train.tsv')  # "data/word-level/*.trpreprocess_asap.pyain"
+    parser.add_argument('--dev', type=str, help='dev file', default='data/fold_0/dev.tsv')
+    parser.add_argument('--test', type=str, help='test file', default='data/fold_0/test.tsv')
+    parser.add_argument('--prompt_id', type=int, default=4, help='prompt id of essay set')
     parser.add_argument('--init_bias', action='store_true', help='init the last layer bias with average score of training data')
     parser.add_argument('--mode', type=str, choices=['mot', 'att', 'merged'], default='att', \
                         help='Mean-over-Time pooling or attention-pooling, or two pooling merged')

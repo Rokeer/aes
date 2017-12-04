@@ -103,8 +103,8 @@ def create_vocab(file_path, prompt_id, vocab_size, tokenize_text, to_lower):
     logger.info('Creating vocabulary from: ' + file_path)
     total_words, unique_words = 0, 0
     word_freqs = {}
-    with codecs.open(file_path, mode='r', encoding='UTF8') as input_file:
-        input_file.next()
+    with codecs.open(file_path, mode='r', encoding='latin1') as input_file:
+        next(input_file)
         for line in input_file:
             tokens = line.strip().split('\t')
             essay_id = int(tokens[0])
