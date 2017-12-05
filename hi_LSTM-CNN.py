@@ -33,7 +33,7 @@ def main():
     parser.add_argument('--train_flag', action='store_true', help='Train or eval')
     parser.add_argument('--fine_tune', action='store_true', help='Fine tune word embeddings')
     parser.add_argument('--embedding', type=str, default='word2vec', help='Word embedding type, word2vec, senna or glove')
-    parser.add_argument('--embedding_dict', type=str, default=None, help='Pretrained embedding path')
+    parser.add_argument('--embedding_dict', type=str, default='glove/glove.6B.50d.txt', help='Pretrained embedding path')
     parser.add_argument('--embedding_dim', type=int, default=50, help='Only useful when embedding is randomly initialised')
     parser.add_argument('--char_embedd_dim', type=int, default=30, help='char embedding dimension if using char embedding')
 
@@ -143,7 +143,7 @@ def main():
     logger.info("Initial evaluation: ")
     evl.evaluate(model, -1, print_info=True)
     logger.info("Train model")
-    for ii in xrange(args.num_epochs):
+    for ii in range(args.num_epochs):
         logger.info('Epoch %s/%s' % (str(ii+1), args.num_epochs))
         start_time = time.time()
         if args.use_char:

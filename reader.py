@@ -103,7 +103,7 @@ def create_vocab(file_path, prompt_id, vocab_size, tokenize_text, to_lower):
     logger.info('Creating vocabulary from: ' + file_path)
     total_words, unique_words = 0, 0
     word_freqs = {}
-    with codecs.open(file_path, mode='r', encoding='latin1') as input_file:
+    with codecs.open(file_path, mode='r', encoding='utf-8') as input_file:
         next(input_file)
         for line in input_file:
             tokens = line.strip().split('\t')
@@ -149,7 +149,7 @@ def create_char_vocab(file_path, prompt_id, tokenize_text, to_lower):
     char_vocab['<unk>'] = start_index
     next_index = start_index + 1
     with codecs.open(file_path, 'r', encoding='utf-8') as input_file:
-        input_file.next()
+        next(input_file)
         for line in input_file:
             tokens = line.strip().split('\t')
             essay_id = int(tokens[0])
@@ -269,12 +269,12 @@ def shorten_sentence(sent, max_sentlen):
         k_indexes = [i for i, key in enumerate(tokens) if key in split_keywords]
         processed_tokens = []
         if not k_indexes:
-            num = len(tokens) / max_sentlen
-            k_indexes = [(i+1)*max_sentlen for i in xrange(num)]
+            num = (int) (len(tokens) / max_sentlen)
+            k_indexes = [(i+1)*max_sentlen for i in range(num)]
 
         processed_tokens.append(tokens[0:k_indexes[0]])
         len_k = len(k_indexes)
-        for j in xrange(len_k-1):
+        for j in range(len_k-1):
             processed_tokens.append(tokens[k_indexes[j]:k_indexes[j+1]])
         processed_tokens.append(tokens[k_indexes[-1]:])
 
@@ -282,12 +282,12 @@ def shorten_sentence(sent, max_sentlen):
         # if there are still sentences whose length exceeds max_sentlen
         for token in processed_tokens:
             if len(token) > max_sentlen:
-                num = len(token) / max_sentlen
-                s_indexes = [(i+1)*max_sentlen for i in xrange(num)]
+                num = (int) (len(token) / max_sentlen)
+                s_indexes = [(i+1)*max_sentlen for i in range(num)]
 
                 len_s = len(s_indexes)
                 new_tokens.append(token[0:s_indexes[0]])
-                for j in xrange(len_s-1):
+                for j in range(len_s-1):
                     new_tokens.append(token[s_indexes[j]:s_indexes[j+1]])
                 new_tokens.append(token[s_indexes[-1]:])
 
@@ -308,7 +308,7 @@ def read_dataset(file_path, prompt_id, vocab, to_lower, score_index=6, char_leve
     max_sentnum = -1
     max_sentlen = -1
     with codecs.open(file_path, mode='r', encoding='UTF8') as input_file:
-        input_file.next()
+        next(input_file)
         for line in input_file:
             tokens = line.strip().split('\t')
             essay_id = int(tokens[0])
@@ -396,7 +396,7 @@ def read_char_dataset(file_path, prompt_id, vocab, char_vocab, to_lower, score_i
     max_sentlen = -1
     maxcharlen = -1
     with codecs.open(file_path, mode='r', encoding='UTF8') as input_file:
-        input_file.next()
+        next(input_file)
         for line in input_file:
             tokens = line.strip().split('\t')
             essay_id = int(tokens[0])

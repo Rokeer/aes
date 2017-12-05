@@ -8,8 +8,10 @@ import sys
 import warnings
 
 from keras import backend as K
+import tensorflow
 # from keras import activations, initializations, regularizers
 from keras.engine.topology import Layer, InputSpec
+import tensorflow as tf
 # from keras.layers.wrappers import Wrapper, TimeDistributed
 # from keras.layers.core import Dense
 # from keras.layers.recurrent import Recurrent, time_distributed_dense
@@ -44,16 +46,23 @@ class Attention(Layer):
             if K.backend() == 'theano':
                 weights = K.theano.tensor.tensordot(self.att_v, K.tanh(y), axes=[0, 2])
             elif K.backend() == 'tensorflow':
-                weights = K.tensorflow.python.ops.math_ops.tensordot(self.att_v, K.tanh(y), axes=[0, 2])
+                weights = tf.tensordot(self.att_v, K.tanh(y), axes=[0, 2])
+                # weights = K.tensorflow.python.ops.math_ops.tensordot(self.att_v, K.tanh(y), axes=[0, 2])
+
         weights = K.softmax(weights)
+
         out = x * K.permute_dimensions(K.repeat(weights, x.shape[2]), [0, 2, 1])
         if self.op == 'attsum':
-            out = out.sum(axis=1)
+            # out = out.sum(axis=1)
+            out = K.sum(out, axis=1)
         elif self.op == 'attmean':
             out = out.sum(axis=1) / mask.sum(axis=1, keepdims=True)
         return K.cast(out, K.floatx())
 
     def get_output_shape_for(self, input_shape):
+        return (input_shape[0], input_shape[2])
+
+    def compute_output_shape(self, input_shape):
         return (input_shape[0], input_shape[2])
     
     def compute_mask(self, x, mask):

@@ -8,9 +8,9 @@ from keras.models import *
 from keras.optimizers import *
 from keras.layers.core import *
 from keras.layers import Input, Embedding, LSTM, GRU, Dense, merge
-from keras.layers import TimeDistributed
+from keras.layers import TimeDistributed, Conv1D
 
-from keras.layers.convolutional import Convolution1D, MaxPooling1D, AveragePooling1D
+from keras.layers.convolutional import MaxPooling1D, AveragePooling1D
 from keras.layers.convolutional import Convolution2D, AveragePooling2D, MaxPooling2D
 from keras.layers.pooling import GlobalAveragePooling1D, GlobalMaxPooling1D
 from keras.regularizers import l2
@@ -46,13 +46,13 @@ def build_hcnn_model(opts, vocab_size=0, maxnum=50, maxlen=50, embedd_dim=50, em
 
     resh_W = Reshape((N, L, embedd_dim), name='resh_W')(drop_x)
 
-    z = TimeDistributed(Convolution1D(opts.nbfilters, opts.filter1_len, border_mode='valid'), name='z')(resh_W)
+    z = TimeDistributed(Conv1D(opts.nbfilters, opts.filter1_len, padding='valid'), name='z')(resh_W)
 
     avg_z = TimeDistributed(AveragePooling1D(pool_length=L-opts.filter1_len+1), name='avg_z')(z)	# shape= (N, 1, nbfilters)
 
     resh_z = Reshape((N, opts.nbfilters), name='resh_z')(avg_z)		# shape(N, nbfilters)
 
-    hz = Convolution1D(opts.nbfilters, opts.filter2_len, border_mode='valid', name='hz')(resh_z)
+    hz = Conv1D(opts.nbfilters, opts.filter2_len, padding='valid', name='hz')(resh_z)
     # avg_h = MeanOverTime(mask_zero=True, name='avg_h')(hz)
 
     avg_hz = GlobalAveragePooling1D(name='avg_hz')(hz)
@@ -93,14 +93,14 @@ def build_hrcnn_model(opts, vocab_size=0, char_vocabsize=0, maxnum=50, maxlen=50
         xc_masked = ZeroMaskedEntries(name='xc_masked')(xc)
         drop_xc = Dropout(opts.dropout, name='drop_xc')(xc_masked)
         res_xc = Reshape((N*L, maxcharlen, opts.char_embedd_dim), name='res_xc')(drop_xc)
-        cnn_xc = TimeDistributed(Convolution1D(opts.char_nbfilters, opts.filter2_len, border_mode='valid'), name='cnn_xc')(res_xc)
+        cnn_xc = TimeDistributed(Conv1D(opts.char_nbfilters, opts.filter2_len, padding='valid'), name='cnn_xc')(res_xc)
         max_xc = TimeDistributed(GlobalMaxPooling1D(), name='avg_xc')(cnn_xc)
         res_xc2 = Reshape((N, L, opts.char_nbfilters), name='res_xc2')(max_xc)
 
         w_repr = merge([resh_W, res_xc2], mode='concat', name='w_repr')
-        zcnn = TimeDistributed(Convolution1D(opts.nbfilters, opts.filter1_len, border_mode='valid'), name='zcnn')(w_repr)
+        zcnn = TimeDistributed(Conv1D(opts.nbfilters, opts.filter1_len, padding='valid'), name='zcnn')(w_repr)
     else:
-        zcnn = TimeDistributed(Convolution1D(opts.nbfilters, opts.filter1_len, border_mode='valid'), name='zcnn')(resh_W)
+        zcnn = TimeDistributed(Conv1D(opts.nbfilters, opts.filter1_len, padding='valid'), name='zcnn')(resh_W)
 
     # pooling mode
     if opts.mode == 'mot':
@@ -180,13 +180,13 @@ def build_char_stacked_model(opts, char_vocabsize=0, maxnum=50, maxlen=50, maxch
     xc_masked = ZeroMaskedEntries(name='xc_masked')(xc)
     drop_xc = Dropout(opts.dropout, name='drop_xc')(xc_masked)
     res_xc = Reshape((N*L, maxcharlen, opts.char_embedd_dim), name='res_xc')(drop_xc)
-    cnn_xc = TimeDistributed(Convolution1D(opts.char_nbfilters, opts.filter2_len, border_mode='valid'), name='cnn_xc')(res_xc)
+    cnn_xc = TimeDistributed(Conv1D(opts.char_nbfilters, opts.filter2_len, padding='valid'), name='cnn_xc')(res_xc)
     max_xc = TimeDistributed(GlobalMaxPooling1D(), name='max_xc')(cnn_xc)
     avg_xc = TimeDistributed(GlobalAveragePooling1D(), name='avg_xc')(cnn_xc)
     res_avg_xc = Reshape((N, L, opts.char_nbfilters), name='res_avg_xc')(avg_xc)
     res_max_xc = Reshape((N, L, opts.char_nbfilters), name='res_max_xc')(max_xc)
     w_repr = merge([res_avg_xc, res_max_xc], mode='concat', name='w_repr')
-    zcnn = TimeDistributed(Convolution1D(opts.nbfilters, opts.filter1_len, border_mode='valid'), name='zcnn')(w_repr)
+    zcnn = TimeDistributed(Conv1D(opts.nbfilters, opts.filter1_len, padding='valid'), name='zcnn')(w_repr)
 
     # pooling mode
     if opts.mode == 'mot':

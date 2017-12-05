@@ -6,7 +6,8 @@
 import gzip
 import logging
 import sys
-from gensim.models.word2vec import Word2Vec
+# from gensim.models.word2vec import Word2Vec
+from gensim.models import KeyedVectors
 # import theano
 import numpy as np
 import tensorflow as tf
@@ -30,7 +31,7 @@ def padding_sentence_sequences(index_sequences, scores, max_sentnum, max_sentlen
 
     X = np.empty([len(index_sequences), max_sentnum, max_sentlen], dtype=np.int32)
     Y = np.empty([len(index_sequences), 1], dtype=np.float32)
-    mask = np.zeros([len(index_sequences), max_sentnum, max_sentlen], dtype=tf.float32)
+    mask = np.zeros([len(index_sequences), max_sentnum, max_sentlen], dtype=np.float32)
 
     for i in range(len(index_sequences)):
         sequence_ids = index_sequences[i]
@@ -59,7 +60,7 @@ def padding_sequences(word_indices, char_indices, scores, max_sentnum, max_sentl
     # support char features
     X = np.empty([len(word_indices), max_sentnum, max_sentlen], dtype=np.int32)
     Y = np.empty([len(word_indices), 1], dtype=np.float32)
-    mask = np.zeros([len(word_indices), max_sentnum, max_sentlen], dtype=tf.float32)
+    mask = np.zeros([len(word_indices), max_sentnum, max_sentlen], dtype=np.float32)
 
     char_X = np.empty([len(char_indices), max_sentnum, max_sentlen, maxcharlen], dtype=np.int32)
 
@@ -113,7 +114,7 @@ def load_word_embedding_dict(embedding, embedding_path, word_alphabet, logger, e
     if embedding == 'word2vec':
         # loading word2vec
         logger.info("Loading word2vec ...")
-        word2vec = Word2Vec.load_word2vec_format(embedding_path, binary=False, unicode_errors='ignore')
+        word2vec = KeyedVectors.load_word2vec_format(embedding_path, binary=False, unicode_errors='ignore')
         embedd_dim = word2vec.vector_size
         return word2vec, embedd_dim, False
     elif embedding == 'glove':
@@ -132,7 +133,7 @@ def load_word_embedding_dict(embedding, embedding_path, word_alphabet, logger, e
                     embedd_dim = len(tokens) - 1
                 else:
                     assert (embedd_dim + 1 == len(tokens))
-                embedd = np.empty([1, embedd_dim], dtype=tf.float32)
+                embedd = np.empty([1, embedd_dim], dtype=np.float32)
                 embedd[:] = tokens[1:]
                 embedd_dict[tokens[0]] = embedd
         return embedd_dict, embedd_dim, True
@@ -152,7 +153,7 @@ def load_word_embedding_dict(embedding, embedding_path, word_alphabet, logger, e
                     embedd_dim = len(tokens) - 1
                 else:
                     assert (embedd_dim + 1 == len(tokens))
-                embedd = np.empty([1, embedd_dim], dtype=tf.float32)
+                embedd = np.empty([1, embedd_dim], dtype=np.float32)
                 embedd[:] = tokens[1:]
                 embedd_dict[tokens[0]] = embedd
         return embedd_dict, embedd_dim, True
@@ -172,10 +173,10 @@ def load_word_embedding_dict(embedding, embedding_path, word_alphabet, logger, e
 
 def build_embedd_table(word_alphabet, embedd_dict, embedd_dim, logger, caseless):
     scale = np.sqrt(3.0 / embedd_dim)
-    embedd_table = np.empty([len(word_alphabet), embedd_dim], dtype=tf.float32)
+    embedd_table = np.empty([len(word_alphabet), embedd_dim], dtype=np.float32)
     embedd_table[0, :] = np.zeros([1, embedd_dim])
     oov_num = 0
-    for word, index in word_alphabet.iteritems():
+    for word, index in word_alphabet.items():
         ww = word.lower() if caseless else word
         # show oov ratio
         if ww in embedd_dict:
