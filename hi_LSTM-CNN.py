@@ -147,9 +147,9 @@ def main():
         logger.info('Epoch %s/%s' % (str(ii+1), args.num_epochs))
         start_time = time.time()
         if args.use_char:
-            model.fit([X_train, C_train], Y_train, batch_size=args.batch_size, nb_epoch=1, verbose=0, shuffle=True)
+            model.fit([X_train, C_train], Y_train, batch_size=args.batch_size, epochs=1, verbose=0, shuffle=True)
         else:
-            model.fit(X_train, Y_train, batch_size=args.batch_size, nb_epoch=1, verbose=0, shuffle=True)
+            model.fit(X_train, Y_train, batch_size=args.batch_size, epochs=1, verbose=0, shuffle=True)
         tt_time = time.time() - start_time
         logger.info("Training one epoch in %.3f s" % tt_time)
         evl.evaluate(model, ii+1)

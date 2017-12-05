@@ -133,14 +133,14 @@ def build_hrcnn_model(opts, vocab_size=0, char_vocabsize=0, maxnum=50, maxlen=50
         raise NotImplementedError
     if opts.l2_value:
         logger.info("Use l2 regularizers, l2 value = %s" % opts.l2_value)
-        y = Dense(output_dim=1, activation='sigmoid', name='output', W_regularizer=l2(opts.l2_value))(avg_hz_lstm)
+        y = Dense(units=1, activation='sigmoid', name='output', W_regularizer=l2(opts.l2_value))(avg_hz_lstm)
     else:
-        y = Dense(output_dim=1, activation='sigmoid', name='output')(avg_hz_lstm)
+        y = Dense(units=1, activation='sigmoid', name='output')(avg_hz_lstm)
 
     if opts.use_char:
-        model = Model(input=[word_input, char_input], output=y)
+        model = Model(inputs=[word_input, char_input], outputs=y)
     else:
-        model = Model(input=word_input, output=y)
+        model = Model(inputs=word_input, outputs=y)
 
     if opts.init_bias and init_mean_value:
         logger.info("Initialise output layer bias with log(y_mean/1-y_mean)")
